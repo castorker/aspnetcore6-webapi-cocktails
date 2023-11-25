@@ -1,3 +1,6 @@
+using Cocktails.API.DbContexts;
+using Microsoft.EntityFrameworkCore;
+
 namespace Cocktails.API
 {
     public class Program
@@ -7,6 +10,12 @@ namespace Cocktails.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            // register the DbContext on the container
+            // getting the connection string from appSettings
+            builder.Services.AddDbContext<CocktailsDbContext>(
+                DbContextOptions => DbContextOptions.UseSqlite(
+                    builder.Configuration["ConnectionStrings:CocktailsDBConnectionString"]));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -25,7 +34,6 @@ namespace Cocktails.API
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
