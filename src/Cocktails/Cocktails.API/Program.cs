@@ -1,4 +1,5 @@
 using Cocktails.API.DbContexts;
+using Cocktails.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cocktails.API
@@ -16,6 +17,8 @@ namespace Cocktails.API
             builder.Services.AddDbContext<CocktailsDbContext>(
                 DbContextOptions => DbContextOptions.UseSqlite(
                     builder.Configuration["ConnectionStrings:CocktailsDBConnectionString"]));
+
+            builder.Services.AddScoped<ICocktailsRepository, CocktailsRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
