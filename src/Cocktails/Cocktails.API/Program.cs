@@ -12,6 +12,8 @@ namespace Cocktails.API
 
             // Add services to the container.
 
+            builder.Services.AddControllers();
+
             // register the DbContext on the container
             // getting the connection string from appSettings
             builder.Services.AddDbContext<CocktailsDbContext>(
@@ -20,8 +22,11 @@ namespace Cocktails.API
 
             builder.Services.AddScoped<ICocktailsRepository, CocktailsRepository>();
 
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            // Learn more about configuring Swagger/OpenAPI at
+            // https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -36,9 +41,14 @@ namespace Cocktails.API
 
             app.UseHttpsRedirection();
 
+            app.UseRouting();
+
             app.UseAuthorization();
 
-            app.MapControllers();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             app.Run();
         }
