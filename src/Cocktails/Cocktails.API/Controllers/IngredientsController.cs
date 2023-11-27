@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Cocktails.API.Entities;
 using Cocktails.API.Models;
 using Cocktails.API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,16 +12,21 @@ namespace Cocktails.API.Controllers
     {
         private readonly ICocktailsRepository _cocktailsRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<IngredientsController> _logger;
 
         public IngredientsController(
             ICocktailsRepository cocktailsRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<IngredientsController> logger)
         {
             _cocktailsRepository = cocktailsRepository 
                 ?? throw new ArgumentNullException(nameof(cocktailsRepository));
 
             _mapper = mapper 
                 ?? throw new ArgumentNullException(nameof(mapper));
+
+            _logger = logger
+                ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
@@ -43,6 +49,9 @@ namespace Cocktails.API.Controllers
 
             if (ingredient == null)
             {
+                _logger.LogInformation(
+                    $"Ingredient with id {id} was not found in the ingredients.");
+
                 return NotFound();
             }
 

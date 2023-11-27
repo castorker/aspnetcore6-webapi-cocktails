@@ -11,15 +11,20 @@ namespace Cocktails.API.Controllers
     {
         private readonly ICocktailsRepository _cocktailsRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<CocktailsController> _logger;
 
         public CocktailsController(
             ICocktailsRepository cocktailsRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<CocktailsController> logger)
         {
             _cocktailsRepository = cocktailsRepository 
                 ?? throw new ArgumentNullException(nameof(cocktailsRepository));
             
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
+            _logger = logger
+                ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
@@ -42,6 +47,9 @@ namespace Cocktails.API.Controllers
 
             if (cocktail == null)
             {
+                _logger.LogInformation(
+                    $"Cocktail with id {id} was not found in the cocktails.");
+
                 return NotFound();
             }
 
