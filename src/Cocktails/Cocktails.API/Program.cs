@@ -1,6 +1,7 @@
 using Cocktails.API.DbContexts;
 using Cocktails.API.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace Cocktails.API
 {
@@ -16,6 +17,8 @@ namespace Cocktails.API
             {
                 options.ReturnHttpNotAcceptable = true;
             })
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
                 .AddXmlDataContractSerializerFormatters();
 
             // register the DbContext on the container

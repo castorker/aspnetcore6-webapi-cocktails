@@ -6,5 +6,7 @@ namespace Cocktails.API.Services
     {
         Task<IEnumerable<Cocktail>> GetCocktailsAsync();
         Task<Cocktail?> GetCocktailAsync(int cocktailId, bool includeIngredients);
+        Task<IEnumerable<Ingredient>> GetIngredientsAsync();
+        Task<Ingredient?> GetIngredientAsync(int ingredientId, bool includeCocktails);
     }
 }

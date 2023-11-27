@@ -32,5 +32,24 @@ namespace Cocktails.API.Services
             return await _context.Cocktails
                     .Where(c => c.Id == cocktailId).FirstOrDefaultAsync();
         }
+
+        public async Task<IEnumerable<Ingredient>> GetIngredientsAsync()
+        {
+            return await _context.Ingredients
+                .OrderBy(i => i.Name).ToListAsync();
+        }
+
+        public async Task<Ingredient?> GetIngredientAsync(int ingredientId, bool includeCocktails)
+        {
+            if (includeCocktails)
+            {
+                return await _context.Ingredients
+                    .Include(i => i.Cocktails)
+                    .Where(i => i.Id == ingredientId).FirstOrDefaultAsync();
+            }
+
+            return await _context.Ingredients
+                    .Where(i => i.Id == ingredientId).FirstOrDefaultAsync();
+        }
     }
 }

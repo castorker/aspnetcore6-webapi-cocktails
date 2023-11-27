@@ -12,6 +12,6 @@
             }
         }
 
-        public ICollection<IngredientDto> Ingredients { get; set; } = new List<IngredientDto>();
+        public ICollection<IngredientWithoutCocktailsDto> Ingredients { get; set; } = new List<IngredientWithoutCocktailsDto>();
     }
 }

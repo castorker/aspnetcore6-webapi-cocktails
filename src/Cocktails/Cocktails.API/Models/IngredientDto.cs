@@ -4,5 +4,14 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public int NumberOfCocktails
+        {
+            get
+            {
+                return Cocktails.Count;
+            }
+        }
+
+        public ICollection<CocktailWithoutIngredientsDto> Cocktails { get; set; } = new List<CocktailWithoutIngredientsDto>();
     }
 }

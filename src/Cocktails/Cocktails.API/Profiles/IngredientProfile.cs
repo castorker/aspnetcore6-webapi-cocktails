@@ -6,6 +6,7 @@ namespace Cocktails.API.Profiles
     {
         public IngredientProfile() 
         {
+            CreateMap<Entities.Ingredient, Models.IngredientWithoutCocktailsDto>();
             CreateMap<Entities.Ingredient, Models.IngredientDto>();
         }
     }

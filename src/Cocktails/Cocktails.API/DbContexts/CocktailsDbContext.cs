@@ -18,7 +18,7 @@ namespace Cocktails.API.DbContexts
             modelBuilder.Entity<Ingredient>().HasData(
 
                 new Ingredient("Cachaça") { Id = 1 },
-                new Ingredient("Sugary") { Id = 2 },
+                new Ingredient("Sugar") { Id = 2 },
                 new Ingredient("Lime") { Id = 3 },
                 new Ingredient("Absinthe") { Id = 4 },
                 new Ingredient("Bénédictine") { Id = 5 },
