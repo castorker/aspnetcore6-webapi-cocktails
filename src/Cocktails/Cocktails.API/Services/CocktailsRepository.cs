@@ -51,5 +51,30 @@ namespace Cocktails.API.Services
             return await _context.Ingredients
                     .Where(i => i.Id == ingredientId).FirstOrDefaultAsync();
         }
+
+        public async Task<bool> CocktailExistsAsync(string cocktailName)
+        {
+            return await _context.Cocktails.AnyAsync(c => c.Name == cocktailName);
+        }
+
+        public async Task<bool> CocktailExistsAsync(int cocktailId)
+        {
+            return await _context.Cocktails.AnyAsync(c => c.Id == cocktailId);
+        }
+
+        public void AddCocktail(Cocktail cocktail)
+        {
+            _context.Cocktails.Add(cocktail);
+        }
+
+        public void DeleteCocktail(Cocktail cocktail)
+        {
+            _context.Cocktails.Remove(cocktail);
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync() >= 0);
+        }
     }
 }

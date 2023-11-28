@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Cocktails.API.Entities;
 using Cocktails.API.Models;
 using Cocktails.API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -35,20 +36,18 @@ namespace Cocktails.API.Controllers
             return Ok(_mapper.Map<IEnumerable<CocktailWithoutIngredientsDto>>(cocktailEntities));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{cocktailid}", Name = "GetCocktail")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetCocktail(
-            int id,
-            bool includeIngredients = false)
+        public async Task<IActionResult> GetCocktail(int cocktailId, bool includeIngredients = false)
         {
-            var cocktail = await _cocktailsRepository.GetCocktailAsync(id, includeIngredients);
+            var cocktail = await _cocktailsRepository.GetCocktailAsync(cocktailId, includeIngredients);
 
             if (cocktail == null)
             {
                 _logger.LogInformation(
-                    $"Cocktail with id {id} was not found in the cocktails.");
+                    $"Cocktail with id {cocktailId} was not found in the cocktails.");
 
                 return NotFound();
             }
@@ -59,6 +58,77 @@ namespace Cocktails.API.Controllers
             }
 
             return Ok(_mapper.Map<CocktailWithoutIngredientsDto>(cocktail));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<CocktailDto>> CreateCocktail(
+            [FromBody] CocktailForCreationDto cocktail)
+        {
+            cocktail.Name = cocktail.Name.Trim();
+            if (await _cocktailsRepository.CocktailExistsAsync(cocktail.Name))
+            {
+                var responseMessage = $"Cocktail with name {cocktail.Name} already exists.";
+
+                _logger.LogInformation(responseMessage);
+
+                return BadRequest(responseMessage);
+            }
+
+            var cocktailToCreate = _mapper.Map<Cocktail>(cocktail);
+
+            _cocktailsRepository.AddCocktail(cocktailToCreate);
+
+            await _cocktailsRepository.SaveChangesAsync();
+
+            var createdCocktailToReturn =
+                _mapper.Map<CocktailDto>(cocktailToCreate);
+
+            return CreatedAtRoute("GetCocktail",
+                new { cocktailId = createdCocktailToReturn.Id, }, 
+                createdCocktailToReturn);
+        }
+
+        [HttpPut("{cocktailid}")]
+        public async Task<ActionResult> UpdateCocktail(int cocktailId,
+            CocktailForUpdateDto cocktail)
+        {
+            var cocktailEntity = await _cocktailsRepository
+                .GetCocktailAsync(cocktailId, false);
+
+            if (cocktailEntity == null)
+            {
+                _logger.LogInformation(
+                    $"No cocktail found with id {cocktailId}.");
+
+                return NotFound();
+            }
+
+            _mapper.Map(cocktail, cocktailEntity);
+
+            await _cocktailsRepository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{cocktailid}")]
+        public async Task<ActionResult> DeleteCocktail(int cocktailId)
+        {
+            var cocktailEntity = await _cocktailsRepository
+                .GetCocktailAsync(cocktailId, false);
+            
+            if (cocktailEntity == null)
+            {
+                _logger.LogInformation(
+                    $"No cocktail found with id {cocktailId}.");
+
+                return NotFound();
+            }
+
+            _cocktailsRepository.DeleteCocktail(cocktailEntity);
+
+            await _cocktailsRepository.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
