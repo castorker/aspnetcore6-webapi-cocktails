@@ -2,6 +2,7 @@
 using Cocktails.API.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cocktails.API.Migrations
 {
     [DbContext(typeof(CocktailsDbContext))]
-    partial class CocktailsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231128192815_DescriptionProperty")]
+    partial class DescriptionProperty
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.25");
