@@ -11,6 +11,7 @@ namespace Cocktails.API.Profiles
             CreateMap<Entities.Cocktail, Models.CocktailDto>();
             CreateMap<CocktailForCreationDto, Entities.Cocktail>();
             CreateMap<CocktailForUpdateDto, Entities.Cocktail>();
+            CreateMap<Entities.Cocktail, Models.CocktailForUpdateDto>();
         }
     }
 }

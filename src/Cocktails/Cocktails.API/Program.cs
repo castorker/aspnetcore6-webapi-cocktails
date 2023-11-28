@@ -19,6 +19,7 @@ namespace Cocktails.API
             })
                 .AddJsonOptions(options =>
                     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
+                .AddNewtonsoftJson()
                 .AddXmlDataContractSerializerFormatters();
 
             // register the DbContext on the container

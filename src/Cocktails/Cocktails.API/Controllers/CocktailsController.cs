@@ -2,6 +2,7 @@
 using Cocktails.API.Entities;
 using Cocktails.API.Models;
 using Cocktails.API.Services;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cocktails.API.Controllers
@@ -104,6 +105,42 @@ namespace Cocktails.API.Controllers
             }
 
             _mapper.Map(cocktail, cocktailEntity);
+
+            await _cocktailsRepository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{cocktailid}")]
+        public async Task<ActionResult> PartialUpdateCocktail(int cocktailId,
+            JsonPatchDocument<CocktailForUpdateDto> patchDocument)
+        {
+            var cocktailEntity = await _cocktailsRepository
+                .GetCocktailAsync(cocktailId, false);
+
+            if (cocktailEntity == null)
+            {
+                _logger.LogInformation(
+                    $"No cocktail found with id {cocktailId}.");
+
+                return NotFound();
+            }
+
+            var cocktailToPatch = _mapper.Map<CocktailForUpdateDto>(cocktailEntity);
+
+            patchDocument.ApplyTo(cocktailToPatch, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!TryValidateModel(cocktailToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+
+            _mapper.Map(cocktailToPatch, cocktailEntity);
 
             await _cocktailsRepository.SaveChangesAsync();
 
