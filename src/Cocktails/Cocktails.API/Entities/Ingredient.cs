@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Cocktails.API.Models.Interfaces;
 
 namespace Cocktails.API.Entities
 {
-    public class Ingredient
+    public class Ingredient : IDataEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

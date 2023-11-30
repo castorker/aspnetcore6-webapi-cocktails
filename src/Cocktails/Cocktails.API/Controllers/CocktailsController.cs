@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Cocktails.API.Entities;
+using Cocktails.API.Extensions;
 using Cocktails.API.Models;
 using Cocktails.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cocktails.API.Controllers
 {
@@ -62,6 +64,8 @@ namespace Cocktails.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CocktailDto>> CreateCocktail(
             [FromBody] CocktailForCreationDto cocktail)
         {
@@ -116,11 +120,19 @@ namespace Cocktails.API.Controllers
         }
 
         [HttpPut("{cocktailid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> UpdateCocktail(int cocktailId,
             CocktailForUpdateDto cocktail)
         {
+            if (cocktailId != cocktail.Id)
+            {
+                return BadRequest();
+            }
+
             var cocktailEntity = await _cocktailsRepository
-                .GetCocktailAsync(cocktailId, false);
+                .GetCocktailAsync(cocktailId, true);
 
             if (cocktailEntity == null)
             {
@@ -130,14 +142,39 @@ namespace Cocktails.API.Controllers
                 return NotFound();
             }
 
-            _mapper.Map(cocktail, cocktailEntity);
+            cocktailEntity.Name = cocktail.Name;
+            cocktailEntity.Description = cocktail.Description;
 
-            await _cocktailsRepository.SaveChangesAsync();
+            if (cocktail.Ingredients.Any())
+            {
+                var ingredientNames = cocktail.Ingredients.Select(x => x.Name.Trim()).ToList();
+                var existingIngredients = await _cocktailsRepository.GetIngredientsByNameAsync(ingredientNames);
+                cocktailEntity.Ingredients.SetRelations(existingIngredients);
+            }
+
+            try
+            {
+                await _cocktailsRepository.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _cocktailsRepository.CocktailExistsAsync(cocktailId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return NoContent();
         }
 
         [HttpPatch("{cocktailid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> PartialUpdateCocktail(int cocktailId,
             JsonPatchDocument<CocktailForUpdateDto> patchDocument)
         {
@@ -174,6 +211,8 @@ namespace Cocktails.API.Controllers
         }
 
         [HttpDelete("{cocktailid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteCocktail(int cocktailId)
         {
             var cocktailEntity = await _cocktailsRepository
