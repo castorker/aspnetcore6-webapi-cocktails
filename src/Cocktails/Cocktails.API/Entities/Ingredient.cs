@@ -16,7 +16,7 @@ namespace Cocktails.API.Entities
         [MaxLength(1000)]
         public string? Description { get; set; }
 
-        public ICollection<Cocktail> Cocktails { get; set; } = new List<Cocktail>();
+        public virtual ICollection<Cocktail> Cocktails { get; set; } = new List<Cocktail>();
 
         public Ingredient(string name)
         {

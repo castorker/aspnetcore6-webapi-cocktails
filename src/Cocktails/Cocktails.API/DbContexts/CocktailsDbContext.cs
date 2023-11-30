@@ -15,6 +15,14 @@ namespace Cocktails.API.DbContexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Cocktail>()
+                .HasIndex(c => c.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<Ingredient>()
+                .HasIndex(i => i.Name)
+                .IsUnique();
+
             modelBuilder.Entity<Ingredient>().HasData(
 
                 new Ingredient("Cachaça") { Id = 1 },

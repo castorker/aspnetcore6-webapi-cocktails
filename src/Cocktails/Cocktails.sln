@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cocktails.API", "Cocktails.API\Cocktails.API.csproj", "{B4E8F1DA-826F-4FFA-A004-D89F7E3F9605}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cocktails.API", "Cocktails.API\Cocktails.API.csproj", "{B4E8F1DA-826F-4FFA-A004-D89F7E3F9605}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

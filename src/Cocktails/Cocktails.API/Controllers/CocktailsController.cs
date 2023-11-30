@@ -77,6 +77,12 @@ namespace Cocktails.API.Controllers
 
             var cocktailToCreate = _mapper.Map<Cocktail>(cocktail);
 
+            if (cocktail.Ingredients.Any())
+            {
+                IList<Ingredient> existingIngredients = await CheckIngredientsExist(cocktail);
+                UpdateIngredientList(cocktailToCreate, existingIngredients);
+            }
+
             _cocktailsRepository.AddCocktail(cocktailToCreate);
 
             await _cocktailsRepository.SaveChangesAsync();
@@ -85,8 +91,28 @@ namespace Cocktails.API.Controllers
                 _mapper.Map<CocktailDto>(cocktailToCreate);
 
             return CreatedAtRoute("GetCocktail",
-                new { cocktailId = createdCocktailToReturn.Id, }, 
+                new { cocktailId = createdCocktailToReturn.Id, },
                 createdCocktailToReturn);
+        }
+
+        private static void UpdateIngredientList(Cocktail cocktailToCreate, IList<Ingredient> existingIngredients)
+        {
+            foreach (var item in existingIngredients)
+            {
+                var found = cocktailToCreate.Ingredients.Where(x => x.Name == item.Name).FirstOrDefault();
+                if (found != null)
+                {
+                    cocktailToCreate.Ingredients.Remove(found);
+                    cocktailToCreate.Ingredients.Add(item);
+                }
+            }
+        }
+
+        private async Task<IList<Ingredient>> CheckIngredientsExist(CocktailForCreationDto cocktail)
+        {
+            var ingredientNames = cocktail.Ingredients.Select(x => x.Name.Trim()).ToList();
+            var existingIngredients = await _cocktailsRepository.GetIngredientsByNameAsync(ingredientNames);
+            return existingIngredients;
         }
 
         [HttpPut("{cocktailid}")]

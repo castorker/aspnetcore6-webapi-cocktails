@@ -13,5 +13,6 @@ namespace Cocktails.API.Services
         void AddCocktail(Cocktail cocktail);
         void DeleteCocktail(Cocktail cocktail);
         Task<bool> SaveChangesAsync();
+        Task<IList<Ingredient>> GetIngredientsByNameAsync(IList<string> ingredientNames);
     }
 }

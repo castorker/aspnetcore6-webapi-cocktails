@@ -76,5 +76,10 @@ namespace Cocktails.API.Services
         {
             return (await _context.SaveChangesAsync() >= 0);
         }
+
+        public async Task<IList<Ingredient>> GetIngredientsByNameAsync(IList<string> ingredientNames)
+        {
+            return await _context.Ingredients.Where(x => ingredientNames.Contains(x.Name)).ToListAsync();
+        }
     }
 }
