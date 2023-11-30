@@ -33,25 +33,6 @@ namespace Cocktails.API.Services
                     .Where(c => c.Id == cocktailId).FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Ingredient>> GetIngredientsAsync()
-        {
-            return await _context.Ingredients
-                .OrderBy(i => i.Name).ToListAsync();
-        }
-
-        public async Task<Ingredient?> GetIngredientAsync(int ingredientId, bool includeCocktails)
-        {
-            if (includeCocktails)
-            {
-                return await _context.Ingredients
-                    .Include(i => i.Cocktails)
-                    .Where(i => i.Id == ingredientId).FirstOrDefaultAsync();
-            }
-
-            return await _context.Ingredients
-                    .Where(i => i.Id == ingredientId).FirstOrDefaultAsync();
-        }
-
         public async Task<bool> CocktailExistsAsync(string cocktailName)
         {
             return await _context.Cocktails.AnyAsync(c => c.Name == cocktailName);
@@ -77,9 +58,53 @@ namespace Cocktails.API.Services
             return (await _context.SaveChangesAsync() >= 0);
         }
 
+        public async Task<IEnumerable<Ingredient>> GetIngredientsAsync()
+        {
+            return await _context.Ingredients
+                .OrderBy(i => i.Name).ToListAsync();
+        }
+
+        public async Task<Ingredient?> GetIngredientAsync(int ingredientId, bool includeCocktails)
+        {
+            if (includeCocktails)
+            {
+                return await _context.Ingredients
+                    .Include(i => i.Cocktails)
+                    .Where(i => i.Id == ingredientId).FirstOrDefaultAsync();
+            }
+
+            return await _context.Ingredients
+                    .Where(i => i.Id == ingredientId).FirstOrDefaultAsync();
+        }
+
         public async Task<IList<Ingredient>> GetIngredientsByNameAsync(IList<string> ingredientNames)
         {
             return await _context.Ingredients.Where(x => ingredientNames.Contains(x.Name)).ToListAsync();
+        }
+
+        public async Task<bool> IngredientExistsAsync(string ingredientName)
+        {
+            return await _context.Ingredients.AnyAsync(i => i.Name == ingredientName);
+        }
+
+        public async Task<bool> IngredientExistsAsync(int ingredientId)
+        {
+            return await _context.Ingredients.AnyAsync(i => i.Id == ingredientId);
+        }
+
+        public void AddIngredient(Ingredient ingredient)
+        {
+            _context.Ingredients.Add(ingredient);
+        }
+
+        public void SetIngredientEntityStateToModified(Ingredient ingredient)
+        {
+            _context.Entry(ingredient).State = EntityState.Modified;
+        }
+
+        public void DeleteIngredient(Ingredient ingredient)
+        {
+            _context.Ingredients.Remove(ingredient);
         }
     }
 }
