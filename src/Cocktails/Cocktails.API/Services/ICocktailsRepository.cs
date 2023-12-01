@@ -5,7 +5,7 @@ namespace Cocktails.API.Services
     public interface ICocktailsRepository
     {
         Task<IEnumerable<Cocktail>> GetCocktailsAsync();
-        Task<IEnumerable<Cocktail>> GetCocktailsAsync(string? name, string? searchQuery);
+        Task<(IEnumerable<Cocktail>, PaginationMetadata)> GetCocktailsAsync(string? name, string? searchQuery, int pageNumber, int pageSize);
         Task<Cocktail?> GetCocktailAsync(int cocktailId, bool includeIngredients);
         Task<bool> CocktailExistsAsync(string cocktailName);
         Task<bool> CocktailExistsAsync(int cocktailId);
