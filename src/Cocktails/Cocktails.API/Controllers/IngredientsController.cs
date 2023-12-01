@@ -32,9 +32,10 @@ namespace Cocktails.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<IngredientWithoutCocktailsDto>>> GetIngredients()
+        public async Task<ActionResult<IEnumerable<IngredientWithoutCocktailsDto>>> GetIngredients(
+            [FromQuery] string? name, string? searchQuery)
         {
-            var ingredientEntities = await _cocktailsRepository.GetIngredientsAsync();
+            var ingredientEntities = await _cocktailsRepository.GetIngredientsAsync(name, searchQuery);
 
             return Ok(_mapper.Map<IEnumerable<IngredientWithoutCocktailsDto>>(ingredientEntities));
         }

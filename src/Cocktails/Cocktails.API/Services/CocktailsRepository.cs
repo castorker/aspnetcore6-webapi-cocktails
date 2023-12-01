@@ -89,6 +89,31 @@ namespace Cocktails.API.Services
                 .OrderBy(i => i.Name).ToListAsync();
         }
 
+        public async Task<IEnumerable<Ingredient>> GetIngredientsAsync(string? name, string? searchQuery)
+        {
+            if (string.IsNullOrEmpty(name) && string.IsNullOrWhiteSpace(searchQuery))
+            {
+                return await GetIngredientsAsync();
+            }
+
+            var collection = _context.Ingredients as IQueryable<Ingredient>;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                name = name.Trim();
+                collection = collection.Where(c => c.Name == name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                searchQuery = searchQuery.Trim();
+                collection = collection.Where(x => x.Name.Contains(searchQuery)
+                || (x.Description != null && x.Description.Contains(searchQuery)));
+            }
+
+            return await collection.OrderBy(c => c.Name).ToListAsync();
+        }
+
         public async Task<Ingredient?> GetIngredientAsync(int ingredientId, bool includeCocktails)
         {
             if (includeCocktails)

@@ -13,6 +13,7 @@ namespace Cocktails.API.Services
         void DeleteCocktail(Cocktail cocktail);
         Task<bool> SaveChangesAsync();
         Task<IEnumerable<Ingredient>> GetIngredientsAsync();
+        Task<IEnumerable<Ingredient>> GetIngredientsAsync(string? name, string? searchQuery);
         Task<Ingredient?> GetIngredientAsync(int ingredientId, bool includeCocktails);
         Task<IList<Ingredient>> GetIngredientsByNameAsync(IList<string> ingredientNames);
         Task<bool> IngredientExistsAsync(string ingredientName);
