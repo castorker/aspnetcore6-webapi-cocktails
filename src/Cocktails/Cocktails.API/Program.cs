@@ -1,6 +1,7 @@
 using Cocktails.API.DbContexts;
 using Cocktails.API.Services;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Text.Json.Serialization;
 
 namespace Cocktails.API
@@ -9,7 +10,16 @@ namespace Cocktails.API
     {
         public static void Main(string[] args)
         {
+            // Configure Serilog
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File("logs/cocktails.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Host.UseSerilog();
 
             // Add services to the container.
 
