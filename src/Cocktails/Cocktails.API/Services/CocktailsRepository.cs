@@ -95,13 +95,9 @@ namespace Cocktails.API.Services
                 .OrderBy(i => i.Name).ToListAsync();
         }
 
-        public async Task<IEnumerable<Ingredient>> GetIngredientsAsync(string? name, string? searchQuery)
+        public async Task<(IEnumerable<Ingredient>, PaginationMetadata)> GetIngredientsAsync(
+            string? name, string? searchQuery, int pageNumber, int pageSize)
         {
-            if (string.IsNullOrEmpty(name) && string.IsNullOrWhiteSpace(searchQuery))
-            {
-                return await GetIngredientsAsync();
-            }
-
             var collection = _context.Ingredients as IQueryable<Ingredient>;
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -117,7 +113,17 @@ namespace Cocktails.API.Services
                 || (x.Description != null && x.Description.Contains(searchQuery)));
             }
 
-            return await collection.OrderBy(c => c.Name).ToListAsync();
+            var totalItemCount = await collection.CountAsync();
+
+            var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+
+            var collectionToReturn = await collection
+                .OrderBy(c => c.Name)
+                .Skip(pageSize * (pageNumber - 1))
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (collectionToReturn, paginationMetadata);
         }
 
         public async Task<Ingredient?> GetIngredientAsync(int ingredientId, bool includeCocktails)

@@ -5,6 +5,7 @@ using Cocktails.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Cocktails.API.Controllers
 {
@@ -15,6 +16,8 @@ namespace Cocktails.API.Controllers
         private readonly ICocktailsRepository _cocktailsRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<IngredientsController> _logger;
+
+        const int maxCocktailsPageSize = 30;
 
         public IngredientsController(
             ICocktailsRepository cocktailsRepository,
@@ -33,9 +36,17 @@ namespace Cocktails.API.Controllers
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<IngredientWithoutCocktailsDto>>> GetIngredients(
-            [FromQuery] string? name, string? searchQuery)
+            [FromQuery] string? name, string? searchQuery, int pageNumber = 1, int pageSize = 10)
         {
-            var ingredientEntities = await _cocktailsRepository.GetIngredientsAsync(name, searchQuery);
+            if (pageSize > maxCocktailsPageSize)
+            {
+                pageSize = maxCocktailsPageSize;
+            }
+
+            var (ingredientEntities, paginationMetadata) = await _cocktailsRepository
+                .GetIngredientsAsync(name, searchQuery, pageNumber, pageSize);
+
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
 
             return Ok(_mapper.Map<IEnumerable<IngredientWithoutCocktailsDto>>(ingredientEntities));
         }
