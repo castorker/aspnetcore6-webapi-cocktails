@@ -3,6 +3,7 @@ using Cocktails.API.Entities;
 using Cocktails.API.Extensions;
 using Cocktails.API.Models;
 using Cocktails.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using System.Text.Json;
 namespace Cocktails.API.Controllers
 {
     [ApiController]
+    [Authorize(Policy = "MustBeAtLeast18YearsOld")]
     [Route("api/cocktails")]
     public class CocktailsController : ControllerBase
     {

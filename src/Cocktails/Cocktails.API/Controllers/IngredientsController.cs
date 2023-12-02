@@ -2,6 +2,7 @@
 using Cocktails.API.Entities;
 using Cocktails.API.Models;
 using Cocktails.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +10,9 @@ using System.Text.Json;
 
 namespace Cocktails.API.Controllers
 {
-    [Route("api/ingredients")]
     [ApiController]
+    [Authorize(Policy = "MustBeAtLeast18YearsOld")]
+    [Route("api/ingredients")]
     public class IngredientsController : ControllerBase
     {
         private readonly ICocktailsRepository _cocktailsRepository;

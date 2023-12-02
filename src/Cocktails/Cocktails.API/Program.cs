@@ -1,7 +1,10 @@
 using Cocktails.API.DbContexts;
 using Cocktails.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace Cocktails.API
@@ -32,6 +35,11 @@ namespace Cocktails.API
                 .AddNewtonsoftJson()
                 .AddXmlDataContractSerializerFormatters();
 
+            // Learn more about configuring Swagger/OpenAPI at
+            // https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
             // register the DbContext on the container
             // getting the connection string from appSettings
             builder.Services.AddDbContext<CocktailsDbContext>(
@@ -42,11 +50,31 @@ namespace Cocktails.API
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at
-            // https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddAuthentication("Bearer")
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new()
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["Authentication:Issuer"],
+                        ValidAudience = builder.Configuration["Authentication:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.ASCII.GetBytes(builder.Configuration["Authentication:SecretForKey"]))
+                    };
+                });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("MustBeAtLeast18YearsOld", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.Requirements.Add(new MinimumAgeRequirement(18));
+                });
+            });
+
+            builder.Services.AddSingleton<IAuthorizationHandler, MinimumAgeHandler>();
 
             var app = builder.Build();
 
@@ -61,6 +89,7 @@ namespace Cocktails.API
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
