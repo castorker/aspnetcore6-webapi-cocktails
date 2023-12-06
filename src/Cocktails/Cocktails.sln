@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cocktails.Client", "Cocktai
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cocktails.Model", "Cocktails.Model\Cocktails.Model.csproj", "{B673D824-0ACA-4D4D-B4F3-8D9242B2BB73}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orga.Idp", "Orga.Idp\Orga.Idp.csproj", "{4DC3150B-3AFE-4EEB-B07D-A2C27D5F36A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{B673D824-0ACA-4D4D-B4F3-8D9242B2BB73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B673D824-0ACA-4D4D-B4F3-8D9242B2BB73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B673D824-0ACA-4D4D-B4F3-8D9242B2BB73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DC3150B-3AFE-4EEB-B07D-A2C27D5F36A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DC3150B-3AFE-4EEB-B07D-A2C27D5F36A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DC3150B-3AFE-4EEB-B07D-A2C27D5F36A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DC3150B-3AFE-4EEB-B07D-A2C27D5F36A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
