@@ -1,0 +1,33 @@
+﻿@model Cocktails.Client.ViewModels.CocktailsIndexViewModel
+
+<h2>Cocktails</h2>
+<hr />
+
+@if (!Model.Cocktails.Any())
+{
+    <tr><td colspan="3" class="text-center">No cocktails yet!</td></tr>
+}
+else
+{
+    <div class="bottomMarginDefault">
+    </div>
+
+    <div class="container">
+        <div class="row">
+            @foreach (var item in Model.Cocktails)
+            {
+                <div>
+                    <div>
+                        <strong>@item.Name</strong><br />
+                        @item.Description
+
+                        <div class="bottomMarginDefault">
+                            <a asp-action="EditCocktail" asp-controller="Cocktails" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-action="DeleteCocktail" asp-controller="Cocktails" asp-route-id="@item.Id">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

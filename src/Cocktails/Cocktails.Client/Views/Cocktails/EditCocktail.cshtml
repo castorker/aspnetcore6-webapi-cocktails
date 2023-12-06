@@ -1,0 +1,30 @@
+﻿@model Cocktails.Client.ViewModels.EditCocktailViewModel
+
+<h2 class="leftMarginSmaller">Edit Cocktail</h2>
+
+<form asp-action="EditCocktail" method="post" class="form-horizontal" role="form">
+
+    <div class="form-horizontal leftMarginDefault">
+
+        <div class="form-group">
+            <div>Name</div>
+            <input asp-for="Name" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <div>Description</div>
+            <input asp-for="Description" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <div>Ingredients</div>
+            <input asp-for="Ingredients" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <div>
+                <input type="submit" class="btn btn-primary" value="Update cocktail" />
+            </div>
+        </div>
+    </div>
+</form>
