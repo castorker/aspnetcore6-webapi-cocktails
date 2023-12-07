@@ -2,9 +2,14 @@
 using System.Text.Json;
 using Cocktails.Model;
 using Cocktails.Client.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Text;
 
 namespace Cocktails.Client.Controllers
 {
+    [Authorize]
     public class CocktailsController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -22,28 +27,38 @@ namespace Cocktails.Client.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var httpClient = _httpClientFactory.CreateClient("APIClient");
-
-            var request = new HttpRequestMessage(
-                HttpMethod.Get, "/api/cocktails/");
-
-            var response = await httpClient.SendAsync(
-                request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-
-            response.EnsureSuccessStatusCode();
-
-            using (var responseStream = await response.Content.ReadAsStreamAsync())
+            try
             {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                };
+                await LogIdentityInformationAsync();
 
-                var cocktails = await JsonSerializer
-                    .DeserializeAsync<List<CocktailWithoutIngredients>>(responseStream, options);
-                
-                return View(new CocktailsIndexViewModel(cocktails 
-                    ?? new List<CocktailWithoutIngredients>()));
+                var httpClient = _httpClientFactory.CreateClient("APIClient");
+
+                var request = new HttpRequestMessage(
+                    HttpMethod.Get, "/api/cocktails/");
+
+                var response = await httpClient.SendAsync(
+                    request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+
+                response.EnsureSuccessStatusCode();
+
+                using (var responseStream = await response.Content.ReadAsStreamAsync())
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                    };
+
+                    var cocktails = await JsonSerializer
+                        .DeserializeAsync<List<CocktailWithoutIngredients>>(responseStream, options);
+
+                    return View(new CocktailsIndexViewModel(cocktails
+                        ?? new List<CocktailWithoutIngredients>()));
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError($"\n{ex.Message}");
+                return RedirectToAction("AccessDenied", "Authentication");
             }
         }
 
@@ -153,6 +168,8 @@ namespace Cocktails.Client.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Policy = "UserCanAddCocktail")]
+        //[Authorize(Roles = "admin")]
         public IActionResult AddCocktail()
         {
             return View();
@@ -160,6 +177,8 @@ namespace Cocktails.Client.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "UserCanAddCocktail")]
+        //[Authorize(Roles = "admin")]
         public async Task<IActionResult> AddCocktail(AddCocktailViewModel addCocktailViewModel)
         {
             if (!ModelState.IsValid)
@@ -204,6 +223,30 @@ namespace Cocktails.Client.Controllers
             response.EnsureSuccessStatusCode();
 
             return RedirectToAction("Index");
+        }
+
+        public async Task LogIdentityInformationAsync()
+        {
+            // get the saved identity token
+            var identityToken = await HttpContext
+                .GetTokenAsync(OpenIdConnectParameterNames.IdToken);
+
+            // get the saved access token
+            var accessToken = await HttpContext
+                .GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+
+            var userClaimsStringBuilder = new StringBuilder();
+            foreach (var claim in User.Claims)
+            {
+                userClaimsStringBuilder.AppendLine(
+                    $"Claim type: {claim.Type} - Claim value: {claim.Value}");
+            }
+
+            // log token & claims
+            _logger.LogInformation($"Identity token & user claims: " +
+                $"\n{identityToken} \n{userClaimsStringBuilder}");
+            _logger.LogInformation($"Access token: " +
+                $"\n{accessToken}");
         }
     }
 }

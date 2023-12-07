@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
-namespace Cocktails.API.Services
+namespace Cocktails.API.Authorization
 {
     public class MinimumAgeHandler : AuthorizationHandler<MinimumAgeRequirement>
     {
@@ -9,7 +9,7 @@ namespace Cocktails.API.Services
             AuthorizationHandlerContext context, MinimumAgeRequirement requirement)
         {
             var dateOfBirthClaim = context.User.FindFirst(
-                c => c.Type == ClaimTypes.DateOfBirth && c.Issuer == "https://localhost:7132");
+                c => c.Type == ClaimTypes.DateOfBirth && c.Issuer == "https://localhost:5001");
 
             if (dateOfBirthClaim is null)
             {

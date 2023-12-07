@@ -78,11 +78,22 @@ namespace Cocktails.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "UserCanAddCocktail")]
+        [Authorize(Policy = "ClientApplicationCanWrite")]
+        //[Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CocktailDto>> CreateCocktail(
             [FromBody] CocktailForCreationDto cocktail)
         {
+            // get the SubjectId of the current user trying to create the cocktail
+            var subjectId = User.Claims
+                .FirstOrDefault(c => c.Type == "sub")?.Value;
+            if (subjectId == null)
+            {
+                throw new Exception("User identifier is missing from token.");
+            }
+
             cocktail.Name = cocktail.Name.Trim();
             if (await _cocktailsRepository.CocktailExistsAsync(cocktail.Name))
             {

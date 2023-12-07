@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Cocktails.API.Services
+namespace Cocktails.API.Authorization
 {
     public class MinimumAgeRequirement : IAuthorizationRequirement
     {

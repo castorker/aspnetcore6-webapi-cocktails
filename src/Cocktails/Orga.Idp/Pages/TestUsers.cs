@@ -28,8 +28,9 @@ public class TestUsers
                     {
                         new Claim(JwtClaimTypes.GivenName, "Johnny"),
                         new Claim(JwtClaimTypes.FamilyName, "Oldman"),
-                        new Claim(JwtClaimTypes.BirthDate, "11/06/2003"),
+                        new Claim(ClaimTypes.DateOfBirth, "11/06/2003"),
                         new Claim("role", "admin"),
+                        new Claim("country", "pt"),
                     }
                 },
                 new TestUser
@@ -42,8 +43,9 @@ public class TestUsers
                     {
                         new Claim(JwtClaimTypes.GivenName, "Linda"),
                         new Claim(JwtClaimTypes.FamilyName, "Young"),
+                        new Claim(ClaimTypes.DateOfBirth, "11/06/2013"),
                         new Claim("role", "user"),
-                        new Claim(JwtClaimTypes.BirthDate, "11/06/2013"),
+                        new Claim("country", "nl"),
                     }
                 }
             };
