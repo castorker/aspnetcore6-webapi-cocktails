@@ -56,7 +56,7 @@ namespace Orga.Idp.Pages.User.Registration
             // create user & claims
             var userToCreate = new Entities.User
             {
-                Password = Input.Password,
+                //Password = Input.Password,
                 UserName = Input.UserName,
                 Subject = Guid.NewGuid().ToString(),
                 Active = true
@@ -86,7 +86,7 @@ namespace Orga.Idp.Pages.User.Registration
                 Value = Input.DateOfBirth.ToString("d")
             });
 
-            _localUserService.AddUser(userToCreate);
+            _localUserService.AddUser(userToCreate, Input.Password);
             await _localUserService.SaveChangesAsync();
 
             // Issue authentication cookie (log the user in)
