@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cocktails.Model", "Cocktail
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orga.Idp", "Orga.Idp\Orga.Idp.csproj", "{4DC3150B-3AFE-4EEB-B07D-A2C27D5F36A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cocktails.Authorization", "Cocktails.Authorization\Cocktails.Authorization.csproj", "{D5941552-1530-46BB-9529-99ABC5104B18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cocktails.Authorization", "Cocktails.Authorization\Cocktails.Authorization.csproj", "{D5941552-1530-46BB-9529-99ABC5104B18}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

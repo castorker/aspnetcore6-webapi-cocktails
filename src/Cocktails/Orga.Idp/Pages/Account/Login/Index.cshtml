@@ -43,7 +43,15 @@
                                     </div>
                                 </div>
                             }
-                            
+
+                            <div class="form-group">
+                                <a class="btn btn-secondary"
+                                   asp-page="/User/Registration/Index"
+                                   asp-route-returnUrl="@Model.Input.ReturnUrl">
+                                    Not registered yet?  Click here
+                                </a>
+                            </div>
+
                             <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
                             <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
                         </form>
