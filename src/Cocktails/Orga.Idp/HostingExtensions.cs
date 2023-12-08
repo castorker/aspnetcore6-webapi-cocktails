@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Orga.Idp.DbContexts;
 using Serilog;
 
 namespace Orga.Idp;
@@ -8,6 +10,13 @@ internal static class HostingExtensions
     {
         // uncomment if you want to add a UI
         builder.Services.AddRazorPages();
+
+        builder.Services.AddDbContext<IdentityDbContext>(options =>
+        {
+            options.UseSqlite(
+                builder.Configuration
+                .GetConnectionString("OrgaIdentityDBConnectionString"));
+        });
 
         builder.Services.AddIdentityServer(options =>
             {
