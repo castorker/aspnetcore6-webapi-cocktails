@@ -33,7 +33,8 @@ public static class Config
                      "cocktailsapi.fullaccess",
                      "cocktailsapi.read",
                      "cocktailsapi.write"
-                 }
+                 },
+                 ApiSecrets = { new Secret("apisecret".Sha256()) }
              }
          };
 
@@ -53,6 +54,12 @@ public static class Config
                     ClientName = "Cocktails",
                     ClientId = "cocktailsclient",
                     AllowedGrantTypes = GrantTypes.Code,
+                    AccessTokenType = AccessTokenType.Reference,
+                    AllowOfflineAccess = true,
+                    UpdateAccessTokenClaimsOnRefresh = true,
+                    //AccessTokenLifetime = 120,
+                    //AuthorizationCodeLifetime = ...
+                    //IdentityTokenLifetime = ...
                     RedirectUris =
                     {
                         "https://localhost:7112/signin-oidc"

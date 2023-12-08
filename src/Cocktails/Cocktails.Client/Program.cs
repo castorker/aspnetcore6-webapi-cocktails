@@ -27,6 +27,11 @@ builder.Services.AddHttpClient("APIClient", client =>
     client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
 }).AddUserAccessTokenHandler();
 
+builder.Services.AddHttpClient("IDPClient", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:5001/");
+});
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -62,6 +67,7 @@ builder.Services.AddAuthentication(options =>
     //options.Scope.Add("cocktailsapi.fullaccess");
     options.Scope.Add("cocktailsapi.read");
     options.Scope.Add("cocktailsapi.write");
+    options.Scope.Add("offline_access");
     options.ClaimActions.MapJsonKey("role", "role");
     options.ClaimActions.MapUniqueJsonKey("country", "country");
     options.ClaimActions.MapUniqueJsonKey(ClaimTypes.DateOfBirth, ClaimTypes.DateOfBirth);

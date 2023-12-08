@@ -86,16 +86,25 @@ namespace Cocktails.API
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                 .AddJwtBearer(options =>
+                 //.AddJwtBearer(options =>
+                 //{
+                 //    options.Authority = "https://localhost:5001";
+                 //    options.Audience = "cocktailsapi";
+                 //    options.TokenValidationParameters = new()
+                 //    {
+                 //        NameClaimType = "given_name",
+                 //        RoleClaimType = "role",
+                 //        ValidTypes = new[] { "at+jwt" }
+                 //    };
+                 //});
+
+                 .AddOAuth2Introspection(options =>
                  {
                      options.Authority = "https://localhost:5001";
-                     options.Audience = "cocktailsapi";
-                     options.TokenValidationParameters = new()
-                     {
-                         NameClaimType = "given_name",
-                         RoleClaimType = "role",
-                         ValidTypes = new[] { "at+jwt" }
-                     };
+                     options.ClientId = "cocktailsapi";
+                     options.ClientSecret = "apisecret";
+                     options.NameClaimType = "given_name";
+                     options.RoleClaimType = "role";
                  });
 
             builder.Services.AddAuthorization(authorizationOptions =>
