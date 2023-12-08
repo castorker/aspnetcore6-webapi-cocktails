@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Orga.Idp.DbContexts;
+using Orga.Idp.Services;
 using Serilog;
 
 namespace Orga.Idp;
@@ -10,6 +11,8 @@ internal static class HostingExtensions
     {
         // uncomment if you want to add a UI
         builder.Services.AddRazorPages();
+
+        builder.Services.AddScoped<ILocalUserService, LocalUserService>();
 
         builder.Services.AddDbContext<IdentityDbContext>(options =>
         {
@@ -23,11 +26,12 @@ internal static class HostingExtensions
                 // https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/api_scopes#authorization-based-on-scopes
                 options.EmitStaticAudienceClaim = true;
             })
+            .AddProfileService<LocalUserProfileService>()
             .AddInMemoryIdentityResources(Config.IdentityResources)
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryApiResources(Config.ApiResources)
-            .AddInMemoryClients(Config.Clients)
-            .AddTestUsers(TestUsers.Users);
+            .AddInMemoryClients(Config.Clients);
+            //.AddTestUsers(TestUsers.Users);
 
         return builder.Build();
     }
