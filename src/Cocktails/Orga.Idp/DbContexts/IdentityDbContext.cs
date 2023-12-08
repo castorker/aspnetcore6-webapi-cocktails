@@ -34,6 +34,7 @@ namespace Orga.Idp.DbContexts
                     Password = "password",
                     Subject = "ac46ef56-2155-4d0b-afd0-d10c5e7c89b1",
                     UserName = "Johnny",
+                    Email = "johnny@emailprovider.com",
                     Active = true
                 },
                 new User()
@@ -42,6 +43,7 @@ namespace Orga.Idp.DbContexts
                     Password = "password",
                     Subject = "bcc4c51b-d20b-41dc-8152-cc7ed69c62c7",
                     UserName = "Linda",
+                    Email = "linda@emailprovider.com",
                     Active = true
                 });
 

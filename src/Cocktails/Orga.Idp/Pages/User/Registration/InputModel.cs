@@ -37,6 +37,12 @@ namespace Orga.Idp.Pages.User.Registration
         [BindProperty, DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
 
+        [Required]
+        [MaxLength(200)]
+        [Display(Name = "Email")]
+        [EmailAddress]
+        public string Email { get; set; }
+
         public SelectList CountryCodes { get; set; } =
             new(new[] {
                     new { Id = "pt", Value = "Portugal" },

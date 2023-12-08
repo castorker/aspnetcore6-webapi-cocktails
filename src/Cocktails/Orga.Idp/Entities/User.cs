@@ -20,6 +20,15 @@ namespace Orga.Idp.Entities
         [Required]
         public bool Active { get; set; }
 
+        [MaxLength(200)]
+        public string Email { get; set; }
+
+        [MaxLength(200)]
+        public string SecurityCode { get; set; }
+
+        public DateTime SecurityCodeExpirationDate { get; set; }
+
+
         [ConcurrencyCheck]
         public string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
 
