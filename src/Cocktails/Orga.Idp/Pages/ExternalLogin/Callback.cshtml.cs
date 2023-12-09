@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Orga.Idp.Entities;
 
 namespace Orga.Idp.Pages.ExternalLogin;
 
@@ -15,7 +16,7 @@ namespace Orga.Idp.Pages.ExternalLogin;
 [SecurityHeaders]
 public class Callback : PageModel
 {
-    private readonly TestUserStore _users;
+    //private readonly TestUserStore _users;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Callback> _logger;
     private readonly IEventService _events;
@@ -23,11 +24,11 @@ public class Callback : PageModel
     public Callback(
         IIdentityServerInteractionService interaction,
         IEventService events,
-        ILogger<Callback> logger,
-        TestUserStore users = null)
+        ILogger<Callback> logger)
+        //,TestUserStore users = null)
     {
-        // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-        _users = users ?? throw new Exception("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
+        //// this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
+        //_users = users ?? throw new Exception("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
 
         _interaction = interaction;
         _logger = logger;
@@ -62,19 +63,19 @@ public class Callback : PageModel
         var provider = result.Properties.Items["scheme"];
         var providerUserId = userIdClaim.Value;
 
-        // find external user
-        var user = _users.FindByExternalProvider(provider, providerUserId);
-        if (user == null)
-        {
-            // this might be where you might initiate a custom workflow for user registration
-            // in this sample we don't show how that would be done, as our sample implementation
-            // simply auto-provisions new external user
-            //
-            // remove the user id claim so we don't include it as an extra claim if/when we provision the user
-            var claims = externalUser.Claims.ToList();
-            claims.Remove(userIdClaim);
-            user = _users.AutoProvisionUser(provider, providerUserId, claims.ToList());
-        }
+        //// find external user
+        //var user = _users.FindByExternalProvider(provider, providerUserId);
+        //if (user == null)
+        //{
+        //    // this might be where you might initiate a custom workflow for user registration
+        //    // in this sample we don't show how that would be done, as our sample implementation
+        //    // simply auto-provisions new external user
+        //    //
+        //    // remove the user id claim so we don't include it as an extra claim if/when we provision the user
+        //    var claims = externalUser.Claims.ToList();
+        //    claims.Remove(userIdClaim);
+        //    user = _users.AutoProvisionUser(provider, providerUserId, claims.ToList());
+        //}
 
         // this allows us to collect any additional claims or properties
         // for the specific protocols used and store them in the local auth cookie.
@@ -82,11 +83,19 @@ public class Callback : PageModel
         var additionalLocalClaims = new List<Claim>();
         var localSignInProps = new AuthenticationProperties();
         CaptureExternalLoginContext(result, additionalLocalClaims, localSignInProps);
-            
+
+        //// issue authentication cookie for user
+        //var isuser = new IdentityServerUser(user.SubjectId)
+        //{
+        //    DisplayName = user.Username,
+        //    IdentityProvider = provider,
+        //    AdditionalClaims = additionalLocalClaims
+        //};
+
         // issue authentication cookie for user
-        var isuser = new IdentityServerUser(user.SubjectId)
+        var isuser = new IdentityServerUser(providerUserId)
         {
-            DisplayName = user.Username,
+            DisplayName = providerUserId,
             IdentityProvider = provider,
             AdditionalClaims = additionalLocalClaims
         };
@@ -101,7 +110,8 @@ public class Callback : PageModel
 
         // check if external login is in the context of an OIDC request
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-        await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.Client.ClientId));
+        //await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.Client.ClientId));
+        await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, providerUserId, providerUserId, true, context?.Client.ClientId));
 
         if (context != null)
         {

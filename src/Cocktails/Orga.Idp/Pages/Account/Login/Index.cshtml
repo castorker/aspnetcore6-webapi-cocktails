@@ -72,12 +72,23 @@
                             @foreach (var provider in Model.View.VisibleExternalProviders)
                             {
                                 <li class="list-inline-item">
-                                    <a class="btn btn-secondary"
-                                       asp-page="/ExternalLogin/Challenge"
-                                       asp-route-scheme="@provider.AuthenticationScheme"
-                                       asp-route-returnUrl="@Model.Input.ReturnUrl">
-                                        @provider.DisplayName
-                                    </a>
+                                    @if (provider.AuthenticationScheme == "Windows")
+                                    {
+                                        <a class="btn btn-secondary"
+                                           asp-page="/Windows/Index"
+                                           asp-route-returnUrl="@Model.Input.ReturnUrl">
+                                            @provider.DisplayName
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-secondary"
+                                           asp-page="/ExternalLogin/Challenge"
+                                           asp-route-scheme="@provider.AuthenticationScheme"
+                                           asp-route-returnUrl="@Model.Input.ReturnUrl">
+                                            @provider.DisplayName
+                                        </a>
+                                    }
                                 </li>
                             }
                         </ul>

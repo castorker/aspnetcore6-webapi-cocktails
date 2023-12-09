@@ -1,3 +1,4 @@
+using Duende.IdentityServer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Orga.Idp.DbContexts;
@@ -10,6 +11,19 @@ internal static class HostingExtensions
 {
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
+        // configures IIS out-of-proc settings 
+        builder.Services.Configure<IISOptions>(iis =>
+        {
+            iis.AuthenticationDisplayName = "Windows";
+            iis.AutomaticAuthentication = false;
+        });
+        // ..or configures IIS in-proc settings
+        builder.Services.Configure<IISServerOptions>(iis =>
+        {
+            iis.AuthenticationDisplayName = "Windows";
+            iis.AutomaticAuthentication = false;
+        });
+
         // uncomment if you want to add a UI
         builder.Services.AddRazorPages();
 
@@ -35,7 +49,24 @@ internal static class HostingExtensions
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryApiResources(Config.ApiResources)
             .AddInMemoryClients(Config.Clients);
-            //.AddTestUsers(TestUsers.Users);
+        //.AddTestUsers(TestUsers.Users);
+
+        builder.Services
+            .AddAuthentication()
+            .AddOpenIdConnect("AAD", "Azure Active Directory", options =>
+            {
+                options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                // "issuer": "https://login.microsoftonline.com/78e67c9c-13c1-4269-ae2f-c6c5427d7407/v2.0"
+                options.Authority = "https://login.microsoftonline.com/78e67c9c-13c1-4269-ae2f-c6c5427d7407/v2.0";
+                options.ClientId = "d0fc7c05-e9e6-4310-98f6-c057ea7f9fb3";
+                options.ClientSecret = "lDv8Q~Ckhn9DHWqyTpsSwGMjstscvuMRtudHKc9z";
+                options.ResponseType = "code";
+                options.CallbackPath = new PathString("/signin-aad/");
+                options.SignedOutCallbackPath = new PathString("/signout-aad/");
+                options.Scope.Add("email");
+                options.Scope.Add("offline_access");
+                options.SaveTokens = true;
+            });
 
         return builder.Build();
     }
