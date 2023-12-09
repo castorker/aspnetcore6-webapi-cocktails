@@ -8,6 +8,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Duende.IdentityServer" Version="6.3.6" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="6.0.25" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.25" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.25" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.25">
 		  <PrivateAssets>all</PrivateAssets>

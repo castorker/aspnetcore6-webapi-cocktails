@@ -56,16 +56,32 @@ internal static class HostingExtensions
             .AddOpenIdConnect("AAD", "Azure Active Directory", options =>
             {
                 options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                // "issuer": "https://login.microsoftonline.com/78e67c9c-13c1-4269-ae2f-c6c5427d7407/v2.0"
-                options.Authority = "https://login.microsoftonline.com/78e67c9c-13c1-4269-ae2f-c6c5427d7407/v2.0";
-                options.ClientId = "d0fc7c05-e9e6-4310-98f6-c057ea7f9fb3";
-                options.ClientSecret = "lDv8Q~Ckhn9DHWqyTpsSwGMjstscvuMRtudHKc9z";
+                options.Authority = builder.Configuration["Authentication:ADD:Authority"];
+                options.ClientId = builder.Configuration["Authentication:ADD:ClientId"];
+                options.ClientSecret = builder.Configuration["Authentication:ADD:ClientSecret"];
                 options.ResponseType = "code";
                 options.CallbackPath = new PathString("/signin-aad/");
                 options.SignedOutCallbackPath = new PathString("/signout-aad/");
                 options.Scope.Add("email");
                 options.Scope.Add("offline_access");
                 options.SaveTokens = true;
+            });
+
+        builder.Services.AddAuthentication()
+            .AddFacebook("Facebook", options =>
+               {
+                   options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                   options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
+                   options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+               });
+
+        builder.Services.AddAuthentication()
+            .AddGoogle("Google",
+                options =>
+            {
+                options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
             });
 
         return builder.Build();
