@@ -5,6 +5,10 @@ namespace Orga.Idp.Services
 {
     public interface ILocalUserService
     {
+        Task<UserSecret> GetUserSecretAsync(string subject, string name);
+
+        Task<bool> AddUserSecret(string subject, string name, string secret);
+
         Task<User> FindUserByExternalProviderAsync(string provider, string providerIdentityKey);
 
         public User AutoProvisionUser(string provider, string providerIdentityKey, IEnumerable<Claim> claims);

@@ -123,6 +123,53 @@ namespace Orga.Idp.Services
             });
         }
 
+        public async Task<bool> AddUserSecret(string subject,
+            string name, string secret)
+        {
+            if (string.IsNullOrWhiteSpace(subject))
+            {
+                throw new ArgumentNullException(nameof(subject));
+            }
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (string.IsNullOrWhiteSpace(secret))
+            {
+                throw new ArgumentNullException(nameof(secret));
+            }
+
+            var user = await GetUserBySubjectAsync(subject);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.Secrets.Add(new UserSecret()
+            { Name = name, Secret = secret });
+            return true;
+        }
+
+        public async Task<UserSecret> GetUserSecretAsync(
+            string subject, string name)
+        {
+            if (string.IsNullOrWhiteSpace(subject))
+            {
+                throw new ArgumentNullException(nameof(subject));
+            }
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return await _context.UserSecrets
+                .FirstOrDefaultAsync(u => u.User.Subject == subject && u.Name == name);
+        }
+
         public async Task<bool> IsUserActive(string subject)
         {
             if (string.IsNullOrWhiteSpace(subject))

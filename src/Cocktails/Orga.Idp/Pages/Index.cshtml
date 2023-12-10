@@ -26,6 +26,14 @@
         <li>
             Click <a href="~/ciba/all">here</a> to view your pending CIBA login requests.
         </li>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <li>
+                Click <a href="~/mfaregistration/index">here</a> to register for multi-factor authentication.
+            </li>
+        }
+
         <li>
             Here are links to the
             <a href="https://github.com/duendesoftware/IdentityServer">source code repository</a>,

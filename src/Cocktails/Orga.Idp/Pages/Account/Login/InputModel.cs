@@ -9,6 +9,9 @@ namespace Orga.Idp.Pages.Login;
 public class InputModel
 {
     [Required]
+    public string Totp { get; set; }
+
+    [Required]
     public string Username { get; set; }
         
     [Required]
