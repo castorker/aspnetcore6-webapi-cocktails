@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Orga.Idp.Entities;
+using Orga.Idp.Services;
 
 namespace Orga.Idp.Pages.ExternalLogin;
 
@@ -19,12 +20,21 @@ public class Callback : PageModel
     //private readonly TestUserStore _users;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Callback> _logger;
+    private readonly ILocalUserService _localUserService;
     private readonly IEventService _events;
+
+    private readonly Dictionary<string, string> _facebookClaimTypeMap = new()
+        {
+            { "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", JwtClaimTypes.GivenName },
+            { "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", JwtClaimTypes.FamilyName },
+            { "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", JwtClaimTypes.Email }
+        };
 
     public Callback(
         IIdentityServerInteractionService interaction,
         IEventService events,
-        ILogger<Callback> logger)
+        ILogger<Callback> logger,
+        ILocalUserService localUserService)
         //,TestUserStore users = null)
     {
         //// this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
@@ -32,6 +42,8 @@ public class Callback : PageModel
 
         _interaction = interaction;
         _logger = logger;
+        _localUserService = localUserService ?? 
+            throw new ArgumentNullException(nameof(localUserService));
         _events = events;
     }
 
@@ -63,6 +75,91 @@ public class Callback : PageModel
         var provider = result.Properties.Items["scheme"];
         var providerUserId = userIdClaim.Value;
 
+        // find external user
+        var user = await _localUserService
+            .FindUserByExternalProviderAsync(provider, providerUserId);
+        if (user == null)
+        {
+            // remove the userid claim: that information is stored in the UserLogins table
+            var claims = externalUser.Claims.ToList();
+            claims.Remove(userIdClaim);
+
+            // different external login providers often require different
+            // ways of handling provisioning / linking
+            if (provider == "AAD")
+            {
+                // get email claim value
+                var emailFromAzureAD = externalUser.Claims
+                  .FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+
+                if (!string.IsNullOrEmpty(emailFromAzureAD))
+                {
+                    // try to find a user with matching email
+                    user = await _localUserService
+                        .GetUserByEmailAsync(emailFromAzureAD);
+
+                    // if it exists, add AAD as a provider
+                    if (user != null)
+                    {
+                        await _localUserService.AddExternalProviderToUser(
+                            user.Subject, provider, providerUserId);
+                        await _localUserService.SaveChangesAsync();
+                    }
+                    
+                    // create a new user otherwise
+                    else
+                    {
+                        var nameClaim = externalUser.Claims
+                            .FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
+                        string[] values = nameClaim.Split(' ');
+
+                        var givenNameClaim = values[0];
+                        var familyNameClaim = values[1];
+
+                        var mappedClaims = new List<Claim>
+                        {
+                            new Claim(JwtClaimTypes.GivenName, givenNameClaim),
+                            new Claim(JwtClaimTypes.FamilyName, familyNameClaim),
+                            new Claim(JwtClaimTypes.Email, emailFromAzureAD),
+                            // TODO:
+                            new Claim("role", "admin"),
+                            new Claim("country", "nl"),
+                            new Claim(ClaimTypes.DateOfBirth, "11/16/2003")
+                        };
+
+                        // auto-provision the user
+                        user = _localUserService.AutoProvisionUser(
+                            provider, providerUserId, mappedClaims.ToList());
+                        await _localUserService.SaveChangesAsync();
+                    }
+                }
+            }
+            else if (provider == "Facebook")
+            {
+                var mappedClaims = new List<Claim>();
+                // map the claims, and ignore those for which no mapping exists
+                foreach (var claim in claims)
+                {
+                    if (_facebookClaimTypeMap.ContainsKey(claim.Type))
+                    {
+                        mappedClaims.Add(
+                            new Claim(_facebookClaimTypeMap[claim.Type],
+                            claim.Value));
+                    }
+                }
+
+                // TODO:
+                mappedClaims.Add(new Claim("role", "admin"));
+                mappedClaims.Add(new Claim("country", "nl"));
+                mappedClaims.Add(new Claim(ClaimTypes.DateOfBirth, "11/16/2003"));
+
+                // auto-provision the user
+                user = _localUserService.AutoProvisionUser(
+                    provider, providerUserId, mappedClaims.ToList());
+                await _localUserService.SaveChangesAsync();
+            }
+        }
+
         //// find external user
         //var user = _users.FindByExternalProvider(provider, providerUserId);
         //if (user == null)
@@ -92,10 +189,18 @@ public class Callback : PageModel
         //    AdditionalClaims = additionalLocalClaims
         //};
 
+        //// issue authentication cookie for user
+        //var isuser = new IdentityServerUser(providerUserId)
+        //{
+        //    DisplayName = providerUserId,
+        //    IdentityProvider = provider,
+        //    AdditionalClaims = additionalLocalClaims
+        //};
+
         // issue authentication cookie for user
-        var isuser = new IdentityServerUser(providerUserId)
+        var isuser = new IdentityServerUser(user.Subject)
         {
-            DisplayName = providerUserId,
+            DisplayName = user.UserName,
             IdentityProvider = provider,
             AdditionalClaims = additionalLocalClaims
         };
@@ -111,7 +216,8 @@ public class Callback : PageModel
         // check if external login is in the context of an OIDC request
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
         //await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.Client.ClientId));
-        await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, providerUserId, providerUserId, true, context?.Client.ClientId));
+        //await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, providerUserId, providerUserId, true, context?.Client.ClientId));
+        await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.Subject, user.UserName, true, context?.Client.ClientId));
 
         if (context != null)
         {

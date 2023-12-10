@@ -9,7 +9,7 @@ namespace Cocktails.API.Authorization
             AuthorizationHandlerContext context, MinimumAgeRequirement requirement)
         {
             var dateOfBirthClaim = context.User.FindFirst(
-                c => c.Type == ClaimTypes.DateOfBirth && c.Issuer == "https://localhost:5001");
+                c => c.Type == ClaimTypes.DateOfBirth && c.Issuer == "https://localhost:44300");
 
             if (dateOfBirthClaim is null)
             {
